@@ -372,7 +372,7 @@
             
             // Handle Back Button
             const btnBack = document.getElementById('btn-back');
-            if (viewId !== 'intro') {
+            if (viewId === 'todoList' || viewId === 'burgerMenu') {
                 btnBack.classList.remove('hidden');
             } else {
                 btnBack.classList.add('hidden');
