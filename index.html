@@ -67,6 +67,31 @@
             background-image: linear-gradient(transparent 50%, rgba(0,255,255,0.1) 50%);
             background-size: 100% 4px;
         }
+
+        /* Glitch Effect */
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+            40% { transform: translate(-5px, -5px); filter: hue-rotate(180deg); }
+            60% { transform: translate(5px, 5px); filter: hue-rotate(270deg); }
+            80% { transform: translate(5px, -5px); filter: hue-rotate(0deg); }
+            100% { transform: translate(0) }
+        }
+        .glitch-effect {
+            animation: glitch-anim 0.1s infinite;
+            position: relative;
+        }
+        .glitch-effect::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 9999;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative cursor-crosshair">
@@ -156,6 +181,13 @@
                     <button onclick="addTodo()" class="px-6 py-3 bg-[#002222] border border-[#00FFFF] text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black transition-all duration-300 uppercase tracking-wider font-bold shadow-[0_0_10px_rgba(0,255,255,0.2)] hover:shadow-[0_0_20px_rgba(0,255,255,0.6)]">
                         Добавить
                     </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex gap-2 mb-4 justify-center">
+                    <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1 border border-[#00FFFF] text-[#00FFFF] text-sm uppercase hover:bg-[#00FFFF] hover:text-black transition-all bg-[#00FFFF] text-black">Все</button>
+                    <button onclick="setFilter('completed')" id="filter-completed" class="px-3 py-1 border border-[#00FFFF] text-[#00FFFF] text-sm uppercase hover:bg-[#00FFFF] hover:text-black transition-all">Выполненные</button>
+                    <button onclick="setFilter('active')" id="filter-active" class="px-3 py-1 border border-[#00FFFF] text-[#00FFFF] text-sm uppercase hover:bg-[#00FFFF] hover:text-black transition-all">Невыполненные</button>
                 </div>
 
                 <!-- List -->
@@ -280,6 +312,7 @@
         let visitedBurger = false;
         let mysteryStep = 0;
         let shouldPlayMusic = false; // Flag for music playback
+        let currentFilter = 'all'; // Filter state
 
         const menuOptions = ["Список задач", "Бургер-меню"];
         const viewMap = {
@@ -287,8 +320,8 @@
             "Бургер-меню": "burgerMenu"
         };
 
-        // Todo List State
-        let todos = [
+        // Todo List State with LocalStorage
+        let todos = JSON.parse(localStorage.getItem('todos')) || [
             { id: 1, text: "Проснуться", completed: false },
             { id: 2, text: "Наблюдать за бескрайним космосом", completed: false },
             { id: 3, text: "Заняться настройкой экзо-механизмов", completed: false }
@@ -426,11 +459,39 @@
         }
 
         // --- Todo List Logic ---
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderTodos();
+            updateFilterButtons();
+        }
+
+        function updateFilterButtons() {
+            ['all', 'completed', 'active'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === currentFilter) {
+                    btn.classList.add('bg-[#00FFFF]', 'text-black');
+                } else {
+                    btn.classList.remove('bg-[#00FFFF]', 'text-black');
+                }
+            });
+        }
+
         function renderTodos() {
             const list = document.getElementById('todo-list');
             list.innerHTML = '';
             
-            todos.forEach(todo => {
+            let filteredTodos = todos;
+            if (currentFilter === 'completed') {
+                filteredTodos = todos.filter(t => t.completed);
+            } else if (currentFilter === 'active') {
+                filteredTodos = todos.filter(t => !t.completed);
+            }
+
+            filteredTodos.forEach(todo => {
                 const li = document.createElement('li');
                 li.className = `flex items-center justify-between p-4 border ${todo.completed ? 'border-[#005555] bg-[#001111]/50' : 'border-[#00FFFF] bg-[#001111]'} transition-all duration-300 group`;
                 
@@ -447,6 +508,7 @@
                 `;
                 list.appendChild(li);
             });
+            updateFilterButtons();
         }
 
         function addTodo() {
@@ -458,6 +520,7 @@
                     text: text,
                     completed: false
                 });
+                saveTodos();
                 input.value = '';
                 renderTodos();
             }
@@ -467,12 +530,14 @@
             const todo = todos.find(t => t.id === id);
             if (todo) {
                 todo.completed = !todo.completed;
+                saveTodos();
                 renderTodos();
             }
         }
 
         function deleteTodo(id) {
             todos = todos.filter(t => t.id !== id);
+            saveTodos();
             renderTodos();
         }
 
@@ -501,9 +566,26 @@
                     showDialog("Нужно придумать как извлечь из них пользу.", true);
                     break;
                 case 3:
-                    showDialog("Кажется, я придумал, только для этого необходимо немного усовершенствовать мои творения.", false, 3000, showCrashScreen);
+                    showDialog("Кажется, я придумал, только для этого необходимо немного усовершенствовать мои творения.", false, 3000, initiateCrashSequence);
                     break;
             }
+        }
+
+        function initiateCrashSequence() {
+            // Stop music
+            if (player && typeof player.stopVideo === 'function') {
+                player.stopVideo();
+            }
+            shouldPlayMusic = false;
+
+            // Add glitch effect
+            document.body.classList.add('glitch-effect');
+            
+            // Wait then show crash screen
+            setTimeout(() => {
+                document.body.classList.remove('glitch-effect');
+                showCrashScreen();
+            }, 1500);
         }
 
         function nextMysteryDialog() {
