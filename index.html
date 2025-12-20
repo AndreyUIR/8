@@ -205,57 +205,21 @@
                 <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#00FFFF]"></div>
                 <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#00FFFF]"></div>
 
-                <h2 class="text-2xl md:text-3xl mb-6 md:mb-8 text-center uppercase tracking-widest border-b border-[#00FFFF]/30 pb-4">Меню Экзо-Питания</h2>
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 border-b border-[#00FFFF]/30 pb-4 gap-4">
+                    <h2 class="text-2xl md:text-3xl text-center uppercase tracking-widest">Меню Экзо-Питания</h2>
+                    <button onclick="toggleMobileView()" id="btn-mobile-toggle" class="px-4 py-2 bg-[#002222] border border-[#00FFFF] text-[#00FFFF] text-xs uppercase hover:bg-[#00FFFF] hover:text-black transition-all">
+                        Мобильный вид: ВЫКЛ
+                    </button>
+                </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Item 1 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Экзо-Бургер</h3>
-                            <span class="text-[#008888]">50 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Синтетическое мясо высшего качества, обогащенное протеинами.</p>
-                    </div>
-                    <!-- Item 2 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Нанитовый Коктейль</h3>
-                            <span class="text-[#008888]">35 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Жидкая энергия с нано-частицами для мгновенного восстановления.</p>
-                    </div>
-                    <!-- Item 3 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Плазменная Картошка</h3>
-                            <span class="text-[#008888]">25 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Обжарена в ионизированном масле до золотистой корочки.</p>
-                    </div>
-                    <!-- Item 4 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Квантовый Салат</h3>
-                            <span class="text-[#008888]">40 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Овощи, существующие в суперпозиции вкусов.</p>
-                    </div>
-                    <!-- Item 5 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Хитиновый Кранч</h3>
-                            <span class="text-[#008888]">30 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Хрустящие пластины из очищенного хитина пустынных ловцов.</p>
-                    </div>
-                    <!-- Item 6 -->
-                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">Пустотный Пудинг</h3>
-                            <span class="text-[#008888]">45 CR</span>
-                        </div>
-                        <p class="text-sm text-[#00AAAA]">Десерт из темной материи. Вкус меняется при каждом укусе.</p>
-                    </div>
+                <!-- Categories -->
+                <div class="flex flex-wrap gap-2 mb-6 justify-center" id="menu-categories">
+                    <!-- Categories injected via JS -->
+                </div>
+
+                <!-- Menu Grid -->
+                <div id="menu-items-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500">
+                    <!-- Items injected via JS -->
                 </div>
             </div>
         </div>
@@ -313,6 +277,9 @@
         let mysteryStep = 0;
         let shouldPlayMusic = false; // Flag for music playback
         let currentFilter = 'all'; // Filter state
+        let currentMenuCategory = 'all'; // Menu category state
+        let isMobileView = false; // Mobile view toggle state
+        let expandedItems = new Set(); // Expanded items in mobile view
 
         const menuOptions = ["Список задач", "Бургер-меню"];
         const viewMap = {
@@ -325,6 +292,28 @@
             { id: 1, text: "Проснуться", completed: false },
             { id: 2, text: "Наблюдать за бескрайним космосом", completed: false },
             { id: 3, text: "Заняться настройкой экзо-механизмов", completed: false }
+        ];
+
+        // Menu Items Data
+        const menuItems = [
+            { id: 1, category: 'main', name: 'Экзо-Бургер', price: '50 CR', desc: 'Синтетическое мясо высшего качества, обогащенное протеинами.' },
+            { id: 2, category: 'drinks', name: 'Нанитовый Коктейль', price: '35 CR', desc: 'Жидкая энергия с нано-частицами для мгновенного восстановления.' },
+            { id: 3, category: 'main', name: 'Плазменная Картошка', price: '25 CR', desc: 'Обжарена в ионизированном масле до золотистой корочки.' },
+            { id: 4, category: 'main', name: 'Квантовый Салат', price: '40 CR', desc: 'Овощи, существующие в суперпозиции вкусов.' },
+            { id: 5, category: 'main', name: 'Хитиновый Кранч', price: '30 CR', desc: 'Хрустящие пластины из очищенного хитина пустынных ловцов.' },
+            { id: 6, category: 'dessert', name: 'Пустотный Пудинг', price: '45 CR', desc: 'Десерт из темной материи. Вкус меняется при каждом укусе.' },
+            { id: 7, category: 'drinks', name: 'Небула Нектар', price: '60 CR', desc: 'Экстракт из газовых облаков туманности Ориона.' },
+            { id: 8, category: 'special', name: 'Стейк Темной Материи', price: '120 CR', desc: 'Самое плотное и питательное блюдо в галактике.' },
+            { id: 9, category: 'dessert', name: 'Звездный Мусс', price: '55 CR', desc: 'Легкий как вакуум, сладкий как сверхновая.' },
+            { id: 10, category: 'special', name: 'Суп Сингулярности', price: '90 CR', desc: 'Осторожно: может затянуть ваш голод навсегда.' }
+        ];
+
+        const menuCategories = [
+            { id: 'all', label: 'Все' },
+            { id: 'main', label: 'Основные' },
+            { id: 'drinks', label: 'Напитки' },
+            { id: 'dessert', label: 'Десерты' },
+            { id: 'special', label: 'Спец. Меню' }
         ];
 
         // --- Initialization ---
@@ -414,6 +403,8 @@
             // Init specific views
             if (viewId === 'todoList') {
                 renderTodos();
+            } else if (viewId === 'burgerMenu') {
+                renderBurgerMenu();
             }
 
             // Handle Mystery Button Visibility
@@ -539,6 +530,89 @@
             todos = todos.filter(t => t.id !== id);
             saveTodos();
             renderTodos();
+        }
+
+        // --- Burger Menu Logic ---
+        function toggleMobileView() {
+            isMobileView = !isMobileView;
+            const btn = document.getElementById('btn-mobile-toggle');
+            btn.textContent = isMobileView ? 'Мобильный вид: ВКЛ' : 'Мобильный вид: ВЫКЛ';
+            if (isMobileView) {
+                btn.classList.add('bg-[#00FFFF]', 'text-black');
+            } else {
+                btn.classList.remove('bg-[#00FFFF]', 'text-black');
+            }
+            renderBurgerMenu();
+        }
+
+        function setMenuCategory(category) {
+            currentMenuCategory = category;
+            renderBurgerMenu();
+        }
+
+        function toggleItemDescription(id) {
+            if (!isMobileView) return;
+            
+            if (expandedItems.has(id)) {
+                expandedItems.delete(id);
+            } else {
+                expandedItems.add(id);
+            }
+            renderBurgerMenu();
+        }
+
+        function renderBurgerMenu() {
+            const container = document.getElementById('menu-items-container');
+            const categoriesContainer = document.getElementById('menu-categories');
+            
+            // Render Categories
+            categoriesContainer.innerHTML = menuCategories.map(cat => `
+                <button onclick="setMenuCategory('${cat.id}')" 
+                    class="px-3 py-1 border border-[#00FFFF] text-sm uppercase transition-all ${currentMenuCategory === cat.id ? 'bg-[#00FFFF] text-black' : 'text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black'}">
+                    ${cat.label}
+                </button>
+            `).join('');
+
+            // Filter Items
+            const filteredItems = currentMenuCategory === 'all' 
+                ? menuItems 
+                : menuItems.filter(item => item.category === currentMenuCategory);
+
+            // Update Layout Class
+            if (isMobileView) {
+                container.classList.remove('md:grid-cols-2');
+                container.classList.add('grid-cols-1');
+            } else {
+                container.classList.add('md:grid-cols-2');
+                container.classList.remove('grid-cols-1');
+            }
+
+            // Render Items
+            container.innerHTML = filteredItems.map(item => {
+                const isExpanded = expandedItems.has(item.id);
+                
+                if (isMobileView) {
+                    return `
+                    <div onclick="toggleItemDescription(${item.id})" class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer flex flex-col">
+                        <div class="flex justify-between items-center w-full">
+                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">${item.name}</h3>
+                            <span class="text-[#008888] font-bold">${item.price}</span>
+                        </div>
+                        ${isExpanded ? `<p class="mt-2 text-sm text-[#00AAAA] border-t border-[#005555] pt-2 fade-in">${item.desc}</p>` : ''}
+                    </div>
+                    `;
+                } else {
+                    return `
+                    <div class="bg-[#001111] border border-[#005555] p-4 hover:border-[#00FFFF] transition-colors group cursor-pointer">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-[#00FFFF] group-hover:text-white transition-colors">${item.name}</h3>
+                            <span class="text-[#008888]">${item.price}</span>
+                        </div>
+                        <p class="text-sm text-[#00AAAA]">${item.desc}</p>
+                    </div>
+                    `;
+                }
+            }).join('');
         }
 
         // --- Mystery Logic ---
@@ -703,7 +777,7 @@
             switch(viewId) {
                 case 'mainTask':
                     if (visitedTodo && visitedBurger) {
-                        showDialog("Твоя натура меня удивляет, поскольку я не могу ее понять. Ни один человек не пытался связаться со мной за многие тысячелетия и мой первый контакт выглядит именно так? Это весьма занимательно.", false, 3000, () => {
+                        showDialog("Значит, сегодня у нас DOM? Твоя натура меня удивляет, поскольку я не могу ее понять. Ни один человек не пытался связаться со мной за многие тысячелетия и мой первый контакт выглядит именно так? Это весьма занимательно.", false, 3000, () => {
                             const mysteryBtn = document.getElementById('mystery-btn');
                             if (mysteryBtn) {
                                 mysteryBtn.classList.remove('hidden');
@@ -711,7 +785,7 @@
                             }
                         });
                     } else {
-                        showDialog("Твоя натура меня удивляет, поскольку я не могу ее понять. Ни один человек не пытался связаться со мной за многие тысячелетия и мой первый контакт выглядит именно так? Это весьма занимательно.");
+                        showDialog("Значит, сегодня у нас DOM? Твоя натура меня удивляет, поскольку я не могу ее понять. Ни один человек не пытался связаться со мной за многие тысячелетия и мой первый контакт выглядит именно так? Это весьма занимательно.");
                     }
                     break;
                 case 'todoList':
